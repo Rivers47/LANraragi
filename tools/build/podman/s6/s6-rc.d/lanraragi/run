@@ -1,0 +1,4 @@
+#!/bin/sh
+cd /lanraragi/
+export HOME=/lanraragi
+exec perl /lanraragi/script/launcher.pl -f /lanraragi/script/lanraragi
