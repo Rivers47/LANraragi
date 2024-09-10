@@ -18,7 +18,7 @@ ENTRYPOINT ["//init"]
 
 # Check application health
 HEALTHCHECK --interval=1m --timeout=10s --retries=3 \
-  CMD wget --quiet --tries=1 --no-check-certificate --spider \
+  CMD wget --quiet --tries=1 --no-check-certificate --spider -Y off \
   http://localhost:3000 || exit 1
 
 #Default mojo server port
@@ -78,3 +78,4 @@ COPY /tools/build/docker/s6/cont-init.d/01-lrr-setup /etc/s6-overlay/s6-rc.d/ini
 VOLUME [ "/home/koyomi/lanraragi/content" ]
 VOLUME [ "/home/koyomi/lanraragi/content/thumb" ]
 VOLUME [ "/home/koyomi/lanraragi/database"]
+VOLUME [ "/home/koyomi/lanraragi/lib/LANraragi/Plugin/Sideloaded" ]
