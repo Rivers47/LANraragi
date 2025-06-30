@@ -1,5 +1,6 @@
 node_modules
 content
+thumb
 .minion.db*
 npm-debug.log
 dump.rdb
@@ -12,3 +13,4 @@ config.log
 autobackup.json
 Makefile
 oshino
+temp

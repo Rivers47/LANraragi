@@ -12,6 +12,9 @@ use Mojolicious::Plugin::Config;
 use Mojo::Home;
 use Mojo::JSON qw(decode_json);
 
+use LANraragi::Utils::Logging    qw(get_logger);
+use LANraragi::Model::Category;
+
 # Find the project root directory to load the conf file
 my $home = Mojo::Home->new;
 $home->detect;
@@ -78,7 +81,7 @@ sub get_redis_internal {
         server    => &get_redisad,
         debug     => $ENV{LRR_DEVSERVER} ? "1" : "0",
         reconnect => 3,
-        &get_redispassword ? (password => &get_redispassword) : ()
+        &get_redispassword ? ( password => &get_redispassword ) : ()
     );
 
     # Switch to specced database
@@ -132,7 +135,7 @@ sub get_userdir {
 sub get_thumbdir {
 
     # Content path can be overriden by LRR_THUMB_DIRECTORY
-    my $dir = &get_redis_conf( "thumbdir", get_userdir() . "/thumb" );
+    my $dir = &get_redis_conf( "thumbdir", "./thumb" );
 
     if ( $ENV{LRR_THUMB_DIRECTORY} ) {
         $dir = $ENV{LRR_THUMB_DIRECTORY};
@@ -168,8 +171,30 @@ sub get_tagrules {
     );
 }
 
-sub get_htmltitle        { return xml_escape(&get_redis_conf( "htmltitle",       "LANraragi" )) }
-sub get_motd             { return xml_escape(&get_redis_conf( "motd",            "Welcome to this Library running LANraragi!" )) }
+# first_install_actions()
+# Setup tasks for first-time installations. New installs are checked by confirming updated
+# user settings. On first installation, create default 'Favorites' category link it to the bookmark
+# button. Returns 1 if is first-time installation, else 0.
+sub first_install_actions {
+    my $redis = get_redis_config();
+    my $logger = get_logger( "Config", "lanraragi" );
+    unless ( $redis->hexists('LRR_CONFIG', 'htmltitle') ) {
+        $logger->info("First-time installation detected!");
+        $redis->hset('LRR_CONFIG', 'htmltitle', 'LANraragi');
+
+        $logger->debug("Creating first category...");
+        my $default_category_id = LANraragi::Model::Category::create_category("🔖 Favorites", "", 0, "");
+        LANraragi::Model::Category::update_bookmark_link($default_category_id);
+        $logger->info("Created default Favorites category.");
+        $redis->quit();
+        return 1;
+    }
+    $redis->quit();
+    return 0;
+}
+
+sub get_htmltitle        { return xml_escape( &get_redis_conf( "htmltitle", "LANraragi" ) ) }
+sub get_motd             { return xml_escape( &get_redis_conf( "motd",      "Welcome to this Library running LANraragi!" ) ) }
 sub get_tempmaxsize      { return &get_redis_conf( "tempmaxsize",     "500" ) }
 sub get_pagesize         { return &get_redis_conf( "pagesize",        "100" ) }
 sub enable_pass          { return &get_redis_conf( "enablepass",      "1" ) }

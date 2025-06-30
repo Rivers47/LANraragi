@@ -19,7 +19,9 @@ Get the Archive Index in JSON form. You can use the IDs of this JSON with the ot
     "progress": 0,
     "tags": "",
     "lastreadtime": 1589038280,
-    "title": "Ghost in the Shell 01.5 - Human-Error Processor v01c01"
+    "title": "Ghost in the Shell 01.5 - Human-Error Processor v01c01",
+    "filename": "Ghost in the Shell 01.5 - Human-Error Processor v01c01",
+    "summary": ""
 }, {
     "arcid": "28697b96f0ac5858be2614ed10ca47742c9522fd",
     "isnew": "false",
@@ -28,7 +30,9 @@ Get the Archive Index in JSON form. You can use the IDs of this JSON with the ot
     "progress": 3,
     "tags": "parody:fate grand order,  group:wadamemo,  artist:wada rco,  artbook,  full color",
     "lastreadtime": 1337038281,
-    "title": "Fate GO MEMO"
+    "title": "Fate GO MEMO",
+    "filename": "Fate GO MEMO",
+    "summary": ""
 }, {
     "arcid": "2810d5e0a8d027ecefebca6237031a0fa7b91eb3",
     "isnew": "false",
@@ -37,7 +41,9 @@ Get the Archive Index in JSON form. You can use the IDs of this JSON with the ot
     "progress": 0,
     "tags": "parody:fate grand order,  character:abigail williams,  character:artoria pendragon alter,  character:asterios,  character:ereshkigal,  character:gilgamesh,  character:hans christian andersen,  character:hassan of serenity,  character:hector,  character:helena blavatsky,  character:irisviel von einzbern,  character:jeanne alter,  character:jeanne darc,  character:kiara sessyoin,  character:kiyohime,  character:lancer,  character:martha,  character:minamoto no raikou,  character:mochizuki chiyome,  character:mordred pendragon,  character:nitocris,  character:oda nobunaga,  character:osakabehime,  character:penthesilea,  character:queen of sheba,  character:rin tosaka,  character:saber,  character:sakata kintoki,  character:scheherazade,  character:sherlock holmes,  character:suzuka gozen,  character:tamamo no mae,  character:ushiwakamaru,  character:waver velvet,  character:xuanzang,  character:zhuge liang,  group:wadamemo,  artist:wada rco,  artbook,  full color",
     "lastreadtime": 1337038282,
-    "title": "Fate GO MEMO 2"
+    "title": "Fate GO MEMO 2",
+    "filename": "Fate GO MEMO 2",
+    "summary": ""
 }, {
     "arcid": "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf",
     "isnew": "false",
@@ -46,7 +52,9 @@ Get the Archive Index in JSON form. You can use the IDs of this JSON with the ot
     "progress": 0,
     "tags": "character:segata sanshiro",
     "lastreadtime": 1337038234,
-    "title": "Saturn Backup Cartridge - Japanese Manual"
+    "title": "Saturn Backup Cartridge - Japanese Manual",
+    "filename": "Saturn Backup Cartridge - Japanese Manual",
+    "summary": ""
 }, {
     "arcid": "e4c422fd10943dc169e3489a38cdbf57101a5f7e",
     "isnew": "false",
@@ -55,7 +63,9 @@ Get the Archive Index in JSON form. You can use the IDs of this JSON with the ot
     "progress": 0,
     "tags": "parody: jojo's bizarre adventure",
     "lastreadtime": 0,
-    "title": "Rohan Kishibe goes to Gucci"
+    "title": "Rohan Kishibe goes to Gucci",
+    "filename": "rohan",
+    "summary": ""
 }]
 ```
 {% endswagger-response %}
@@ -444,6 +454,112 @@ Current page to update the reading progress to. **Must** be a positive integer, 
 {% endswagger-response %}
 {% endswagger %}
 
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/upload" method="put" summary="🔑Upload Archive" %}
+{% swagger-description %}
+Upload an Archive to the server.
+If a SHA1 checksum of the Archive is included, the server will perform an optional in-transit, file integrity validation, and reject the upload if the server-side checksum does not match.
+{% endswagger-description %}
+
+{% swagger-parameter name="title" type="string" required="false" in="query" %}
+Title of the Archive.
+{% endswagger-parameter %}
+{% swagger-parameter name="tags" type="string" required="false" in="query" %}
+Set of tags you want to insert in the database alongside the archive.
+{% endswagger-parameter %}
+{% swagger-parameter name="summary" type="string" required="false" in="query" %}
+summary
+{% endswagger-parameter %}
+{% swagger-parameter name="category_id" type="int" required="false" in="query" %}
+Category ID you'd want the archive to be added to.
+{% endswagger-parameter %}
+{% swagger-parameter name="file_checksum" type="string" required="false" in="query" %}
+SHA1 checksum of the archive for in-transit validation.
+{% endswagger-parameter %}
+
+{% swagger-response status="200" description="" %}
+```javascript
+{
+  "operation": "upload",
+  "success": 1,
+  "id": "7ffb78b32abfb679e4824db9f1e3addf335d0f70"
+}
+```
+{% endswagger-response %}
+
+{% swagger-response status="400" description="" %}
+```javascript
+{
+  "operation": "upload",
+  "error": "No file attached",
+  "success": 0
+}
+```
+{% endswagger-response %}
+
+{% swagger-response status="409" description="duplicate archive" %}
+```javascript
+{
+  "operation": "upload",
+  "error": "This file already exists in the Library. Enable replace duplicated archive in config to replace old ones.",
+  "success": 0,
+  "id": "0b91b546850e881034833c73375558928ddcec7c"
+}
+```
+{% endswagger-response %}
+
+{% swagger-response status="415" description="unsupported file" %}
+```javascript
+{
+  "operation": "upload",
+  "error": "Unsupported File Extension (Spirited Away.mkv)",
+  "success": 0,
+  "id": "deadbeef"
+}
+```
+{% endswagger-response %}
+
+{% swagger-response status="417" description="checksum mismatch" %}
+```javascript
+{
+  "operation": "upload",
+  "error": "Checksum mismatch: expected 92cfceb39d57d914ed8b14d0e37643de0797ae56, got 0286dd552c9bea9a69ecb3759e7b94777635514b",
+  "success": 0
+}
+```
+{% endswagger-response %}
+
+{% swagger-response status="422" description="unprocessable entity" %}
+```javascript
+{
+  "operation": "upload",
+  "error": "Filename \"quirky-symbols～☆.cbz\" could not be converted back to a byte sequence!",
+  "success": 0
+}
+```
+{% endswagger-response %}
+
+{% swagger-response status="423" description="locked resource" %}
+```javascript
+{
+  "operation": "upload",
+  "error": "Locked resource: Monster-01.cbz",
+  "success": 0
+}
+```
+{% endswagger-response %}
+
+{% swagger-response status="500" description="" %}
+```javascript
+{
+  "operation": "upload",
+  "error": "The file couldn't be moved to your content folder!",
+  "success": 0
+}
+```
+{% endswagger-response %}
+
+{% endswagger %}
+
 {% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/:id/thumbnail" method="put" summary="🔑Update Thumbnail" %}
 {% swagger-description %}
 Update the cover thumbnail for the given Archive.
@@ -453,7 +569,7 @@ You can specify a page number to use as the thumbnail, or you can use the defaul
 {% swagger-parameter name="id" type="string" required="true" in="path" %}
 ID of the Archive to process.
 {% endswagger-parameter %}
-{% swagger-parameter name="page" type="int" required="false" in="path" %}
+{% swagger-parameter name="page" type="int" required="false" in="query" %}
 Page you want to make the thumbnail out of. Defaults to 1.
 {% endswagger-parameter %}
 
@@ -462,7 +578,7 @@ Page you want to make the thumbnail out of. Defaults to 1.
 {
   "operation": "update_thumbnail",
   "success": 1,
-  "new_thumbnail": "/mnt//lrr/content/thumb/95/9595845d952e8141feeba375767248b960979bc2.jpg"
+  "new_thumbnail": "/mnt/lrr/thumb/95/9595845d952e8141feeba375767248b960979bc2.jpg"
 }
 ```
 {% endswagger-response %}
